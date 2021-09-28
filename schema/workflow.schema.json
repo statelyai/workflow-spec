@@ -1,0 +1,349 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "definitions": {
+    "actionObject": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "definition": "The action type"
+        },
+        "params": {
+          "type": "object",
+          "definition": "Action parameters"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type"]
+    },
+    "baseStateNode": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["atomic", "compound", "parallel", "final", "history"]
+        },
+        "order": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string",
+          "description": "The text description of this state node"
+        }
+      },
+      "required": []
+    },
+    "compoundStateNode": {
+      "allOf": [
+        { "$ref": "#/definitions/baseStateNode" },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "pattern": "compound"
+            },
+            "entry": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/actionObject"
+              }
+            },
+            "exit": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/actionObject"
+              }
+            },
+            "initial": {
+              "$ref": "#/definitions/transitionObject"
+            },
+            "invoke": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/invokeObject"
+              }
+            },
+            "transitions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/transitionObject"
+              }
+            },
+            "states": {
+              "$ref": "#/definitions/statesObject"
+            }
+          },
+          "required": ["initial", "states"]
+        }
+      ]
+    },
+    "parallelStateNode": {
+      "allOf": [
+        { "$ref": "#/definitions/baseStateNode" },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "pattern": "parallel"
+            },
+            "entry": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/actionObject"
+              }
+            },
+            "exit": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/actionObject"
+              }
+            },
+            "invoke": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/invokeObject"
+              }
+            },
+            "transitions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/transitionObject"
+              }
+            },
+            "states": {
+              "$ref": "#/definitions/statesObject"
+            }
+          },
+          "required": ["type", "states"]
+        }
+      ]
+    },
+    "atomicStateNode": {
+      "allOf": [
+        { "$ref": "#/definitions/baseStateNode" },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "pattern": "atomic"
+            },
+            "entry": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/actionObject"
+              }
+            },
+            "exit": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/actionObject"
+              }
+            },
+            "invoke": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/invokeObject"
+              }
+            },
+            "transitions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/transitionObject"
+              }
+            }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+    "historyStateNode": {
+      "allOf": [
+        { "$ref": "#/definitions/baseStateNode" },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "pattern": "history"
+            },
+            "history": {
+              "type": "string",
+              "enum": ["shallow", "deep"]
+            },
+            "target": {
+              "type": "string",
+              "description": "The default target if no history exists for its parent node"
+            }
+          },
+          "required": ["type", "history"]
+        }
+      ]
+    },
+    "finalStateNode": {
+      "allOf": [
+        { "$ref": "#/definitions/baseStateNode" },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "pattern": "final"
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+    "statesObject": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "oneOf": [
+            { "$ref": "#/definitions/atomicStateNode" },
+            { "$ref": "#/definitions/compoundStateNode" },
+            { "$ref": "#/definitions/parallelStateNode" },
+            { "$ref": "#/definitions/historyStateNode" },
+            { "$ref": "#/definitions/finalStateNode" }
+          ]
+        }
+      }
+    },
+    "transitionObject": {
+      "type": "object",
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/actionObject"
+          }
+        },
+        "guard": {
+          "$ref": "#/definitions/guardObject"
+        },
+        "eventType": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["actions", "eventType", "source", "target"]
+    },
+    "invokeObject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "src": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" }
+          },
+          "additionalProperties": true,
+          "required": ["type"]
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["id", "src"],
+      "additionalProperties": false
+    },
+    "invokeArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/invokeObject"
+      }
+    },
+    "functionObject": {
+      "type": "object",
+      "properties": {
+        "$function": {
+          "type": "string"
+        }
+      }
+    },
+    "guardObject": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The guard type"
+        },
+        "params": {
+          "type": "object",
+          "description": "Guard parameters"
+        }
+      }
+    }
+  },
+  "properties": {
+    "id": {
+      "title": "ID",
+      "type": "string"
+    },
+    "initial": {
+      "type": "string"
+    },
+    "key": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["compound", "parallel"]
+    },
+    "context": {
+      "type": "object"
+    },
+    "states": {
+      "$ref": "#/definitions/statesObject"
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/transitionObject"
+      }
+    },
+    "entry": {
+      "type": "array"
+    },
+    "exit": {
+      "type": "array"
+    },
+    "order": {
+      "type": "integer"
+    },
+    "invoke": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/invokeObject"
+      }
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": ["id", "key", "type", "states"]
+}
