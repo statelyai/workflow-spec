@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
     "actionObject": {
       "type": "object",
@@ -247,7 +247,7 @@
           }
         }
       },
-      "required": ["actions", "eventType", "source", "target"]
+      "required": []
     },
     "invokeObject": {
       "type": "object",
@@ -299,51 +299,29 @@
       }
     }
   },
-  "properties": {
-    "id": {
-      "title": "ID",
-      "type": "string"
+  "allOf": [
+    {
+      "oneOf": [
+        { "$ref": "#/definitions/atomicStateNode" },
+        { "$ref": "#/definitions/compoundStateNode" },
+        { "$ref": "#/definitions/parallelStateNode" },
+        { "$ref": "#/definitions/historyStateNode" },
+        { "$ref": "#/definitions/finalStateNode" }
+      ]
     },
-    "initial": {
-      "type": "string"
-    },
-    "key": {
-      "type": "string"
-    },
-    "type": {
-      "type": "string",
-      "enum": ["compound", "parallel"]
-    },
-    "context": {
-      "type": "object"
-    },
-    "states": {
-      "$ref": "#/definitions/statesObject"
-    },
-    "transitions": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/transitionObject"
-      }
-    },
-    "entry": {
-      "type": "array"
-    },
-    "exit": {
-      "type": "array"
-    },
-    "order": {
-      "type": "integer"
-    },
-    "invoke": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/invokeObject"
-      }
-    },
-    "version": {
-      "type": "string"
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "The initial context data"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": []
     }
-  },
-  "required": ["id", "key", "type", "states"]
+  ]
 }
