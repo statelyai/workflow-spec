@@ -30,6 +30,12 @@
         "description": {
           "type": "string",
           "description": "The text description of this state node"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": []
@@ -262,7 +268,7 @@
           "additionalProperties": true
         }
       },
-      "required": ["id", "src"],
+      "required": ["src"],
       "additionalProperties": false
     },
     "guardObject": {
@@ -299,6 +305,43 @@
         },
         "version": {
           "type": "string"
+        },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "input": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "events": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "actions": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "guards": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "actors": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "delays": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "tags": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
         }
       },
       "required": []
